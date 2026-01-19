@@ -1,0 +1,156 @@
+/**
+ * AWCF Admin Styles
+ *
+ * Styles for the plugin settings page
+ *
+ * @package AWCF
+ */
+
+/* Settings wrapper */
+.awcf-settings-wrap {
+    max-width: 1200px;
+}
+
+/* Section styling */
+.awcf-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px 25px;
+    margin: 20px 0;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.awcf-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 1.3em;
+    color: #1d2327;
+}
+
+.awcf-section h3 {
+    margin: 25px 0 15px;
+    font-size: 1.1em;
+    color: #1d2327;
+}
+
+.awcf-section > p.description {
+    margin: 0 0 20px;
+    color: #646970;
+}
+
+/* Form table adjustments */
+.awcf-section .form-table {
+    margin-top: 0;
+}
+
+.awcf-section .form-table th {
+    width: 250px;
+    padding-left: 0;
+}
+
+.awcf-section .form-table td {
+    padding-left: 0;
+}
+
+.awcf-section .form-table input[type="text"],
+.awcf-section .form-table textarea,
+.awcf-section .form-table select {
+    width: 100%;
+    max-width: 400px;
+}
+
+.awcf-section .form-table textarea {
+    max-width: 600px;
+}
+
+/* Fields table */
+.awcf-fields-table {
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.awcf-fields-table th,
+.awcf-fields-table td {
+    padding: 12px 15px;
+}
+
+.awcf-fields-table .column-field {
+    width: 45%;
+}
+
+.awcf-fields-table .column-status {
+    width: 27%;
+}
+
+.awcf-fields-table .column-required {
+    width: 28%;
+}
+
+.awcf-fields-table .column-field strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.awcf-fields-table .column-field code {
+    font-size: 11px;
+    background: #f0f0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #50575e;
+}
+
+.awcf-fields-table select {
+    width: 100%;
+    max-width: 150px;
+}
+
+/* Disabled field row styling */
+.awcf-fields-table tr.awcf-field-disabled {
+    background-color: #f9f9f9;
+    opacity: 0.7;
+}
+
+.awcf-fields-table tr.awcf-field-disabled .column-field strong {
+    color: #999;
+    text-decoration: line-through;
+}
+
+.awcf-fields-table tr.awcf-field-disabled .column-required select {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .awcf-section .form-table th {
+        width: 100%;
+        padding-bottom: 5px;
+    }
+    
+    .awcf-section .form-table td {
+        padding-top: 0;
+    }
+    
+    .awcf-fields-table .column-field {
+        width: 100%;
+        display: block;
+        padding-bottom: 5px;
+    }
+    
+    .awcf-fields-table .column-status,
+    .awcf-fields-table .column-required {
+        width: 50%;
+    }
+}
+
+/* Submit button area */
+.awcf-settings-wrap .submit {
+    margin-top: 0;
+    padding: 20px 0;
+}
+
+.awcf-settings-wrap .submit .button-primary {
+    padding: 5px 30px;
+}

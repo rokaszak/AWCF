@@ -1,0 +1,107 @@
+/**
+ * AWCF Public Styles
+ *
+ * Styles for checkout page elements
+ *
+ * @package AWCF
+ */
+
+/* Hidden/Visible state classes */
+.awcf-hidden {
+    display: none !important;
+}
+
+.awcf-visible {
+    display: block !important;
+}
+
+/* Company checkbox styling */
+.awcf-company-checkbox {
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.awcf-company-checkbox label {
+    font-weight: 600;
+}
+
+/* Company fields container */
+.awcf-company-field {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.awcf-company-field.awcf-visible {
+    opacity: 1;
+}
+
+/* Company info message */
+.awcf-company-info-message {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007cba;
+    padding: 12px 15px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.awcf-company-info-message .awcf-info-text {
+    margin: 0;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Required field indicator */
+.awcf-company-field.validate-required label abbr.required {
+    color: #e2401c;
+    font-weight: 700;
+    border: 0;
+    text-decoration: none;
+}
+
+/* Optional field indicator */
+.awcf-company-field label .optional {
+    font-weight: 400;
+    color: #767676;
+    font-size: 0.85em;
+    margin-left: 5px;
+}
+
+/* Error state styling */
+.awcf-company-field.woocommerce-invalid input,
+.awcf-company-field.woocommerce-invalid select,
+.awcf-company-field.woocommerce-invalid textarea {
+    border-color: #e2401c;
+}
+
+/* Company details on thank you and order details pages */
+.woocommerce-company-details {
+    margin-top: 30px;
+}
+
+.woocommerce-company-details__title {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+.woocommerce-table--company-details th {
+    font-weight: 600;
+    width: 40%;
+}
+
+.woocommerce-table--company-details td {
+    width: 60%;
+}
+
+/* Hide ship-to-different-address checkbox when forced - only hide the input, not the container */
+.woocommerce-checkout #ship-to-different-address-checkbox {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Ensure shipping fields are always visible when forced */
+.woocommerce-checkout .woocommerce-shipping-fields .shipping_address {
+    display: block !important;
+}
