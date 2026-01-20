@@ -289,7 +289,7 @@ class AWCF_Order_Data {
         $company_label = $settings['company_information_label'] ?? $defaults['company_information_label'];
         ?>
         <div style="margin-bottom: 40px;">
-            <h2 style="color: #96588a; display: block; font-family: &quot;Helvetica Neue&quot;, Helvetica, Roboto, Arial, sans-serif; font-size: 18px; font-weight: bold; line-height: 130%; margin: 0 0 18px; text-align: left;">
+            <h2 style="color: #1e1e1e; display: block; font-family: Tahoma,Verdana,Segoe,sans-serif; font-size: 20px; font-weight: bold; line-height: 160%; margin: 0 0 18px; text-align: left">
                 <?php echo esc_html( $company_label ); ?>
             </h2>
             <table cellspacing="0" cellpadding="6" style="width: 100%; border: 1px solid #e5e5e5;" border="1">
