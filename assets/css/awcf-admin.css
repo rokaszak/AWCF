@@ -77,15 +77,19 @@
 }
 
 .awcf-fields-table .column-field {
-    width: 45%;
+    width: 35%;
 }
 
 .awcf-fields-table .column-status {
-    width: 27%;
+    width: 20%;
 }
 
 .awcf-fields-table .column-required {
-    width: 28%;
+    width: 20%;
+}
+
+.awcf-fields-table .column-address-form {
+    width: 25%;
 }
 
 .awcf-fields-table .column-field strong {
@@ -140,7 +144,8 @@
     }
     
     .awcf-fields-table .column-status,
-    .awcf-fields-table .column-required {
+    .awcf-fields-table .column-required,
+    .awcf-fields-table .column-address-form {
         width: 50%;
     }
 }

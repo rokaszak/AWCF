@@ -65,6 +65,10 @@ class AWCF_Checkout {
         // This runs after all other plugins/themes have modified fields, ensuring our settings are enforced
         add_filter( 'woocommerce_checkout_fields', array( $this, 'enforce_checkout_fields_settings' ), self::HOOK_PRIORITY + 10 );
         
+        // Address form fields (affects both checkout and My Account address editing)
+        add_filter( 'woocommerce_billing_fields', array( $this, 'modify_billing_address_fields' ), self::HOOK_PRIORITY );
+        add_filter( 'woocommerce_shipping_fields', array( $this, 'modify_shipping_address_fields' ), self::HOOK_PRIORITY );
+        
         // Reorder checkout sections
         add_action( 'woocommerce_checkout_before_customer_details', array( $this, 'maybe_reorder_checkout_sections' ), 1 );
         
@@ -99,22 +103,29 @@ class AWCF_Checkout {
         
         // Check for new format
         if ( isset( $settings['fields'][ $field_key ] ) && is_array( $settings['fields'][ $field_key ] ) ) {
-            return $settings['fields'][ $field_key ];
+            $field_config = $settings['fields'][ $field_key ];
+            // Ensure address_form is set (for backward compatibility)
+            if ( ! isset( $field_config['address_form'] ) ) {
+                $field_config['address_form'] = 'nothing';
+            }
+            return $field_config;
         }
         
         // Legacy format conversion
         if ( isset( $settings['fields'][ $field_key ] ) && is_string( $settings['fields'][ $field_key ] ) ) {
             $legacy_state = $settings['fields'][ $field_key ];
             return array(
-                'status'   => $legacy_state === 'disabled' ? 'disabled' : 'enabled',
-                'required' => $legacy_state === 'required',
+                'status'       => $legacy_state === 'disabled' ? 'disabled' : 'enabled',
+                'required'     => $legacy_state === 'required',
+                'address_form' => 'nothing',
             );
         }
         
         // Default - field enabled, don't override WooCommerce default required
         return array(
-            'status'   => 'enabled',
-            'required' => null,
+            'status'       => 'enabled',
+            'required'     => null,
+            'address_form' => 'nothing',
         );
     }
 
@@ -336,6 +347,142 @@ class AWCF_Checkout {
                 'priority'    => 124,
                 'placeholder' => '',
             );
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Modify billing address fields for My Account address editing
+     * This filter affects both checkout and My Account address forms
+     *
+     * @param array $fields Billing address fields.
+     * @return array
+     */
+    public function modify_billing_address_fields( $fields ) {
+        if ( ! is_array( $fields ) ) {
+            return $fields;
+        }
+
+        $default_fields = AWCF()->get_default_checkout_fields();
+        
+        // Process each billing field
+        foreach ( $fields as $field_key => $field ) {
+            if ( strpos( $field_key, 'billing_' ) !== 0 ) {
+                continue;
+            }
+
+            // Get field config
+            $field_config = $this->get_field_config( $field_key );
+
+            // Handle address_form setting
+            if ( $field_config['address_form'] === 'disable' ) {
+                // Remove field from address forms
+                unset( $fields[ $field_key ] );
+                continue;
+            } elseif ( $field_config['address_form'] === 'enable' ) {
+                // Ensure field exists and apply required setting
+                if ( $field_config['required'] !== null ) {
+                    $fields[ $field_key ]['required'] = (bool) $field_config['required'];
+                    
+                    // Update validate-required class
+                    if ( ! is_array( $fields[ $field_key ]['class'] ) ) {
+                        $existing_class = $fields[ $field_key ]['class'];
+                        $fields[ $field_key ]['class'] = ! empty( $existing_class ) ? explode( ' ', trim( $existing_class ) ) : array();
+                    }
+                    
+                    if ( $field_config['required'] ) {
+                        if ( ! in_array( 'validate-required', $fields[ $field_key ]['class'], true ) ) {
+                            $fields[ $field_key ]['class'][] = 'validate-required';
+                        }
+                    } else {
+                        $fields[ $field_key ]['class'] = array_values( 
+                            array_diff( $fields[ $field_key ]['class'], array( 'validate-required' ) ) 
+                        );
+                    }
+                }
+            }
+            // 'nothing' - do nothing, let WooCommerce handle it
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Modify shipping address fields for My Account address editing
+     * This filter affects both checkout and My Account address forms
+     * Special handling for shipping_phone which WooCommerce doesn't include by default
+     *
+     * @param array $fields Shipping address fields.
+     * @return array
+     */
+    public function modify_shipping_address_fields( $fields ) {
+        if ( ! is_array( $fields ) ) {
+            return $fields;
+        }
+
+        $default_fields = AWCF()->get_default_checkout_fields();
+        
+        // Process each shipping field
+        foreach ( $fields as $field_key => $field ) {
+            if ( strpos( $field_key, 'shipping_' ) !== 0 ) {
+                continue;
+            }
+
+            // Get field config
+            $field_config = $this->get_field_config( $field_key );
+
+            // Handle address_form setting
+            if ( $field_config['address_form'] === 'disable' ) {
+                // Remove field from address forms
+                unset( $fields[ $field_key ] );
+                continue;
+            } elseif ( $field_config['address_form'] === 'enable' ) {
+                // Ensure field exists and apply required setting
+                if ( $field_config['required'] !== null ) {
+                    $fields[ $field_key ]['required'] = (bool) $field_config['required'];
+                    
+                    // Update validate-required class
+                    if ( ! is_array( $fields[ $field_key ]['class'] ) ) {
+                        $existing_class = $fields[ $field_key ]['class'];
+                        $fields[ $field_key ]['class'] = ! empty( $existing_class ) ? explode( ' ', trim( $existing_class ) ) : array();
+                    }
+                    
+                    if ( $field_config['required'] ) {
+                        if ( ! in_array( 'validate-required', $fields[ $field_key ]['class'], true ) ) {
+                            $fields[ $field_key ]['class'][] = 'validate-required';
+                        }
+                    } else {
+                        $fields[ $field_key ]['class'] = array_values( 
+                            array_diff( $fields[ $field_key ]['class'], array( 'validate-required' ) ) 
+                        );
+                    }
+                }
+            }
+            // 'nothing' - do nothing, let WooCommerce handle it
+        }
+
+        // Special handling for shipping_phone - add it if enabled in form
+        $shipping_phone_config = $this->get_field_config( 'shipping_phone' );
+        if ( $shipping_phone_config['address_form'] === 'enable' && ! isset( $fields['shipping_phone'] ) ) {
+            // Get label from default fields
+            $field_label = isset( $default_fields['shipping']['shipping_phone'] ) 
+                ? $default_fields['shipping']['shipping_phone'] 
+                : __( 'Phone', 'woocommerce' );
+            
+            $fields['shipping_phone'] = array(
+                'label'    => $field_label,
+                'required' => (bool) $shipping_phone_config['required'],
+                'class'    => array( 'form-row-wide' ),
+                'clear'    => true,
+                'type'     => 'tel',
+                'priority' => 100,
+            );
+            
+            // Add validate-required class if required
+            if ( $shipping_phone_config['required'] ) {
+                $fields['shipping_phone']['class'][] = 'validate-required';
+            }
         }
 
         return $fields;

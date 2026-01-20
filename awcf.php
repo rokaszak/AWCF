@@ -3,7 +3,7 @@
  * Plugin Name: Advanced Woo Checkout Fields
  * Plugin URI: https://proven.lt
  * Description: Provides advanced control over WooCommerce checkout fields including forced shipping address, field enable/disable/required toggles, and VAT compliance mode with dynamic company fields.
- * Version: 2.1.1
+ * Version: 2.1.2
  * Author: Rokas Zakarauskas
  * Author URI: https://proven.lt
  * Text Domain: advanced-woo-checkout-fields

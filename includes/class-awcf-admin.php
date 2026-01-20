@@ -96,20 +96,23 @@ class AWCF_Admin {
         $sanitized['shipping_title']          = isset( $input['shipping_title'] ) ? sanitize_text_field( $input['shipping_title'] ) : '';
         $sanitized['checkout_order']          = isset( $input['checkout_order'] ) && in_array( $input['checkout_order'], array( 'billing_first', 'shipping_first' ), true ) ? $input['checkout_order'] : 'billing_first';
 
-        // Section 2: Field controls (structured with status and required)
+        // Section 2: Field controls (structured with status, required, and address_form)
         $sanitized['fields'] = array();
         if ( isset( $input['fields'] ) && is_array( $input['fields'] ) ) {
             $valid_statuses = array( 'enabled', 'disabled' );
+            $valid_address_forms = array( 'nothing', 'disable', 'enable' );
             foreach ( $input['fields'] as $field_key => $field_settings ) {
                 $field_key = sanitize_key( $field_key );
                 
                 if ( is_array( $field_settings ) ) {
                     $status   = isset( $field_settings['status'] ) && in_array( $field_settings['status'], $valid_statuses, true ) ? $field_settings['status'] : 'enabled';
                     $required = isset( $field_settings['required'] ) ? (bool) $field_settings['required'] : false;
+                    $address_form = isset( $field_settings['address_form'] ) && in_array( $field_settings['address_form'], $valid_address_forms, true ) ? $field_settings['address_form'] : 'nothing';
                     
                     $sanitized['fields'][ $field_key ] = array(
-                        'status'   => $status,
-                        'required' => $required,
+                        'status'       => $status,
+                        'required'     => $required,
+                        'address_form' => $address_form,
                     );
                 }
             }
@@ -192,22 +195,29 @@ class AWCF_Admin {
     private function get_field_settings( $settings, $field_key ) {
         // Check for new format
         if ( isset( $settings['fields'][ $field_key ] ) && is_array( $settings['fields'][ $field_key ] ) ) {
-            return $settings['fields'][ $field_key ];
+            $field_config = $settings['fields'][ $field_key ];
+            // Ensure address_form is set (for backward compatibility)
+            if ( ! isset( $field_config['address_form'] ) ) {
+                $field_config['address_form'] = 'nothing';
+            }
+            return $field_config;
         }
         
         // Legacy format conversion
         if ( isset( $settings['fields'][ $field_key ] ) && is_string( $settings['fields'][ $field_key ] ) ) {
             $legacy_state = $settings['fields'][ $field_key ];
             return array(
-                'status'   => $legacy_state === 'disabled' ? 'disabled' : 'enabled',
-                'required' => $legacy_state === 'required',
+                'status'       => $legacy_state === 'disabled' ? 'disabled' : 'enabled',
+                'required'     => $legacy_state === 'required',
+                'address_form' => 'nothing',
             );
         }
         
         // Default
         return array(
-            'status'   => 'enabled',
-            'required' => false,
+            'status'       => 'enabled',
+            'required'     => false,
+            'address_form' => 'nothing',
         );
     }
 
@@ -318,6 +328,7 @@ class AWCF_Admin {
                                 <th class="column-field"><?php esc_html_e( 'Field', 'advanced-woo-checkout-fields' ); ?></th>
                                 <th class="column-status"><?php esc_html_e( 'Status', 'advanced-woo-checkout-fields' ); ?></th>
                                 <th class="column-required"><?php esc_html_e( 'Requirement', 'advanced-woo-checkout-fields' ); ?></th>
+                                <th class="column-address-form"><?php esc_html_e( 'Address Form', 'advanced-woo-checkout-fields' ); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -350,6 +361,19 @@ class AWCF_Admin {
                                             </option>
                                         </select>
                                     </td>
+                                    <td class="column-address-form">
+                                        <select name="awcf_settings[fields][<?php echo esc_attr( $field_key ); ?>][address_form]">
+                                            <option value="nothing" <?php selected( $field_settings['address_form'], 'nothing' ); ?>>
+                                                <?php esc_html_e( 'Do Nothing', 'advanced-woo-checkout-fields' ); ?>
+                                            </option>
+                                            <option value="disable" <?php selected( $field_settings['address_form'], 'disable' ); ?>>
+                                                <?php esc_html_e( 'Disable in Form', 'advanced-woo-checkout-fields' ); ?>
+                                            </option>
+                                            <option value="enable" <?php selected( $field_settings['address_form'], 'enable' ); ?>>
+                                                <?php esc_html_e( 'Enable in Form', 'advanced-woo-checkout-fields' ); ?>
+                                            </option>
+                                        </select>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -363,6 +387,7 @@ class AWCF_Admin {
                                 <th class="column-field"><?php esc_html_e( 'Field', 'advanced-woo-checkout-fields' ); ?></th>
                                 <th class="column-status"><?php esc_html_e( 'Status', 'advanced-woo-checkout-fields' ); ?></th>
                                 <th class="column-required"><?php esc_html_e( 'Requirement', 'advanced-woo-checkout-fields' ); ?></th>
+                                <th class="column-address-form"><?php esc_html_e( 'Address Form', 'advanced-woo-checkout-fields' ); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -392,6 +417,19 @@ class AWCF_Admin {
                                             </option>
                                             <option value="1" <?php selected( $field_settings['required'], true ); ?>>
                                                 <?php esc_html_e( 'Required', 'advanced-woo-checkout-fields' ); ?>
+                                            </option>
+                                        </select>
+                                    </td>
+                                    <td class="column-address-form">
+                                        <select name="awcf_settings[fields][<?php echo esc_attr( $field_key ); ?>][address_form]">
+                                            <option value="nothing" <?php selected( $field_settings['address_form'], 'nothing' ); ?>>
+                                                <?php esc_html_e( 'Do Nothing', 'advanced-woo-checkout-fields' ); ?>
+                                            </option>
+                                            <option value="disable" <?php selected( $field_settings['address_form'], 'disable' ); ?>>
+                                                <?php esc_html_e( 'Disable in Form', 'advanced-woo-checkout-fields' ); ?>
+                                            </option>
+                                            <option value="enable" <?php selected( $field_settings['address_form'], 'enable' ); ?>>
+                                                <?php esc_html_e( 'Enable in Form', 'advanced-woo-checkout-fields' ); ?>
                                             </option>
                                         </select>
                                     </td>
