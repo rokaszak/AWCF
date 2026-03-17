@@ -496,6 +496,18 @@ class AWCF_Checkout {
      * @param array    $data  Posted data.
      */
     public function save_order_meta( $order, $data ) {
+        $base_country = WC()->countries->get_base_country();
+
+        $billing_country_config = $this->get_field_config( 'billing_country' );
+        if ( $billing_country_config['status'] === 'disabled' && $base_country ) {
+            $order->set_billing_country( $base_country );
+        }
+
+        $shipping_country_config = $this->get_field_config( 'shipping_country' );
+        if ( $shipping_country_config['status'] === 'disabled' && $base_country ) {
+            $order->set_shipping_country( $base_country );
+        }
+
         $settings = AWCF()->get_settings();
 
         if ( empty( $settings['vat_mode_enabled'] ) ) {
