@@ -80,6 +80,9 @@ class AWCF_Checkout {
         
         // Save order meta (HPOS compatible)
         add_action( 'woocommerce_checkout_create_order', array( $this, 'save_order_meta' ), 20, 2 );
+
+        // Save base country to customer/user meta when country field is disabled
+        add_action( 'woocommerce_checkout_update_customer', array( $this, 'save_country_to_customer' ), 20, 2 );
         
         // Enqueue frontend scripts and styles
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_checkout_scripts' ) );
@@ -528,6 +531,32 @@ class AWCF_Checkout {
                     $order->update_meta_data( '_' . $field_key, sanitize_text_field( wp_unslash( $_POST[ $field_key ] ) ) );
                 }
             }
+        }
+    }
+
+    /**
+     * Save base country to the WC_Customer object (and therefore user meta) when
+     * the country field is disabled, so the customer profile stays consistent with
+     * order data.
+     *
+     * @param WC_Customer $customer Customer object.
+     * @param array       $data     Posted checkout data.
+     */
+    public function save_country_to_customer( $customer, $data ) {
+        $base_country = WC()->countries->get_base_country();
+
+        if ( ! $base_country ) {
+            return;
+        }
+
+        $billing_country_config = $this->get_field_config( 'billing_country' );
+        if ( $billing_country_config['status'] === 'disabled' ) {
+            $customer->set_billing_country( $base_country );
+        }
+
+        $shipping_country_config = $this->get_field_config( 'shipping_country' );
+        if ( $shipping_country_config['status'] === 'disabled' ) {
+            $customer->set_shipping_country( $base_country );
         }
     }
 
